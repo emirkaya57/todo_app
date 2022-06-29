@@ -2,14 +2,6 @@ import 'package:todo_app/model/todoModel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-final todoListProvider =
-    StateNotifierProvider<TodoListManager, List<TodoModel>>((ref) {
-  return TodoListManager([
-    TodoModel(id: const  Uuid().v4(), description: 'Spora git'),
-    TodoModel(id: const  Uuid().v4(), description: 'Spora git'),
-    TodoModel(id: const  Uuid().v4(), description: 'Spora git')  ]);
-});
-
 class TodoListManager extends StateNotifier<List<TodoModel>> {
   TodoListManager([List<TodoModel>? initialTodos]) : super(initialTodos ?? []);
 
@@ -20,7 +12,7 @@ class TodoListManager extends StateNotifier<List<TodoModel>> {
     ];
   }
 
-  void toogle(String id) {
+  void toggle(String id) {
     state = [
       for (var todo in state)
         if (todo.id == id)
@@ -46,5 +38,11 @@ class TodoListManager extends StateNotifier<List<TodoModel>> {
     ];
   }
 
-  void remove(TodoModel silinecekTodo) {}
+  void remove(TodoModel silinecekTodo) {
+    state = state.where((element) => element.id != silinecekTodo.id).toList();
+  }
+
+  int onCompletedTodoCount() {
+    return state.where((element) => !element.completed).length;
+  }
 }

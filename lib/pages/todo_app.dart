@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_app/model/todoModel.dart';
+import 'package:todo_app/providers/all_providers.dart';
 import 'package:todo_app/widgets/tooltip_widget.dart';
 import 'package:uuid/uuid.dart';
 
 import '../widgets/title.dart';
 import '../widgets/todo_list_item_widget.dart';
 
-class TodoApp extends StatelessWidget {
+class TodoApp extends ConsumerWidget {
   TodoApp({Key? key}) : super(key: key);
   final _todocontroller = TextEditingController();
-  List<TodoModel> todoList = [
-    TodoModel(id: const Uuid().v4(), description: 'spora git'),
-    TodoModel(id: const Uuid().v4(), description: 'amvye git'),
-    TodoModel(id: const Uuid().v4(), description: 'okula git')
-  ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    var todoList = ref.watch(todoListProvider);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -28,7 +26,8 @@ class TodoApp extends StatelessWidget {
               labelText: 'Neler yapacaksın',
             ),
             onSubmitted: (deger) {
-              debugPrint('kaydedildi $deger');
+              ref.read(todoListProvider.notifier).addTodo(deger);
+              // debugPrint('kaydedildi $deger');
             },
           ),
           const SizedBox(
@@ -37,8 +36,12 @@ class TodoApp extends StatelessWidget {
           const ToolTipWidget(),
           for (int i = 0; i < todoList.length; i++)
             Dismissible(
-                key: ValueKey(todoList[i].id),
-                child: TodoItems(item: todoList[i]))
+              key: ValueKey(todoList[i].id),
+              child: TodoItems(item: todoList[i]),
+              onDismissed: (_) {
+                ref.read(todoListProvider.notifier).remove(todoList[i]);
+              },
+            )
         ]),
       ),
     );
